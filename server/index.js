@@ -1,6 +1,8 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+const {getGenresTMDB, discoverBadMovies} = require(`../helpers/tmdbReq`);
 
 app.use(express.static(__dirname + '/../client/dist'));
 app.use(bodyParser.json())
@@ -23,10 +25,18 @@ app.get('/search', function(req, res) {
     //https://developers.themoviedb.org/3/discover/movie-discover
 
     //and sort them by horrible votes using the search parameters in the API
-    fs.readFile(require.resolve(`../sample_data/sample_discover.json`), `utf8`, (err, data) => {
-        console.log(data);
+    // fs.readFile(require.resolve(`../sample_data/sample_discover.json`), `utf8`, (err, data) => {
+    //     // console.log(data);
+    //     res.send(data);
+    // })
+
+    let genre = req.query.genre;
+
+    console.log(`genre being passed to discovery API request: ${genre}`)
+
+    discoverBadMovies(genre, (data) => {
         res.send(data);
-    })
+    });
 
     
 })
@@ -37,11 +47,17 @@ app.get('/genres', function(req, res) {
     // from this endpoint https://developers.themoviedb.org/3/genres/get-movie-list which needs your api key
 
     //send back
+    console.log(`inbound GET request recieved @ "/genres" route!`)
 
-    fs.readFile(require.resolve(`../sample_data/sample_genres.json`), `utf8`, (err, data) => {
-        console.log(data);
+
+    // fs.readFile(require.resolve(`../sample_data/sample_genres.json`), `utf8`, (err, data) => {
+    //     console.log(data);
+    //     res.send(data);
+    // })
+
+    getGenresTMDB((data) => {
         res.send(data);
-    })
+    });
 })
 
 app.post('/save', function(req, res) {

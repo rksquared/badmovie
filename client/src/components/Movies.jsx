@@ -17,11 +17,30 @@ class Movies extends React.Component {
 
 
 //
+  isSelected (movie) {
+    let style = {};
+
+    this.props.selectedMovies.forEach((m) => {
+      if (m.id === movie.id) {
+        style = {border: `4px solid green`};
+      }
+    });
+    return style
+  }
+
   render() {
     return (
         <ul className="movies">
         {this.props.movies.map((movie) => (
-          <li  key={movie.id} className="movie_item">
+          <li  
+            key={movie.id} 
+            onClick={() => {
+              this.props.selectHandler(movie)
+            }} 
+            value={movie.title} 
+            className="movie_item"
+            style={this.isSelected(movie)}
+          >
             <img src={movie.thumbnail ? `https://image.tmdb.org/t/p/w500/${movie.thumbnail}` : "https://lh3.googleusercontent.com/97gnjRiv2zIRnDupzfxYFoI-6zlIK3jKgb6KOCDf_tjWkY9epbITdSFIbiKhuccOqQ=w300"} />
             <div className="movie_description">
               <h2>{movie.title}</h2>

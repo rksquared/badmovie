@@ -16,7 +16,9 @@ class App extends React.Component {
         title: `DE WAY`, 
         year: `2090`, 
         rating: `OVER 9000`,
-        desc: `WHOSVILLE`}],
+        desc: `WHOSVILLE`
+      }],
+      selectedMovies: [],
       showFaves: false
   	}
 
@@ -25,11 +27,13 @@ class App extends React.Component {
     this.swapFavorites = this.swapFavorites.bind(this)
     this.saveMovie = this.saveMovie.bind(this);
     this.deleteMovie = this.deleteMovie.bind(this);
+    this.selectMovie = this.selectMovie.bind(this);
   }
 
-  getMovies() {
+  getMovies(genre) {
     //make an axios request to your server on the GET SEARCH endpoint
-    Axios.get(`/search`)
+    console.log(`genre being passed in getMovies: ${genre}`);
+    Axios.get(`/search?${genre ? `genre=${genre}` : `genre=28`}`)
     .then(({data}) => {
       console.log(`Successful GET request on server "/search" route; response data: ${JSON.stringify(data.results[0])}`);
       let movies = data.results.reduce((movieList, movie) => (movieList.push({
@@ -38,8 +42,7 @@ class App extends React.Component {
         year: movie.release_date.slice(0, 4), 
         rating: movie.vote_average,
         desc: movie.overview,
-        thumbnail: movie.poster_path,
-        favorite: false}), 
+        thumbnail: movie.poster_path}), 
         movieList), 
         []);
 
@@ -72,6 +75,17 @@ class App extends React.Component {
     this.getMovies();
   }
 
+  selectMovie(movie) {
+    console.log(`selected movie ${movie.title}`);
+
+    let selectedMovies = this.state.selectedMovies.slice();
+
+    selectedMovies.push(movie);
+
+    this.setState({
+      selectedMovies: selectedMovies
+    });
+  }
 
 
   render () {
@@ -80,8 +94,16 @@ class App extends React.Component {
       <header className="navbar"><h1>Bad Movies</h1></header> 
       
       <div className="main">
-        <Search swapFavorites={this.swapFavorites} showFaves={this.state.showFaves}/>
-        <Movies movies={this.state.showFaves ? this.state.favorites : this.state.movies} showFaves={this.state.showFaves}/>
+        <Search 
+          swapFavorites={this.swapFavorites} 
+          showFaves={this.state.showFaves}
+          searchHandler={this.getMovies}
+        />
+        <Movies 
+          selectedMovies={this.state.selectedMovies} 
+          selectHandler={this.selectMovie} movies={this.state.showFaves ? this.state.favorites : this.state.movies} 
+          showFaves={this.state.showFaves}
+        />
       </div>
     </div>)
   }
