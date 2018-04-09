@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 
+const {getAllFavorites, saveFavorite, deleteFavorites} = require(`./database`);
+
 const {getGenresTMDB, discoverBadMovies} = require(`../helpers/tmdbReq`);
 
 app.use(express.static(__dirname + '/../client/dist'));
@@ -9,7 +11,7 @@ app.use(bodyParser.json())
 
 
 //sample data for testing
-const fs = require(`fs`);
+// const fs = require(`fs`);
 // let sampleGenres = require(`../helpers/sample_genres.json`);
 // let sampleDiscover = require(`../helpers/sample_discover.json`);
 
@@ -42,25 +44,33 @@ app.get('/search', function(req, res) {
 })
 
 app.get('/genres', function(req, res) {
-    //make an axios request to get the list of official genres
-
-    // from this endpoint https://developers.themoviedb.org/3/genres/get-movie-list which needs your api key
-
-    //send back
     console.log(`inbound GET request recieved @ "/genres" route!`)
-
-
-    // fs.readFile(require.resolve(`../sample_data/sample_genres.json`), `utf8`, (err, data) => {
-    //     console.log(data);
-    //     res.send(data);
-    // })
 
     getGenresTMDB((data) => {
         res.send(data);
     });
 })
 
+app.get(`/favorites`, function(req, res) {
+    console.log(`fetching all favorites from MOVIES table in DB`);
+
+    getAllFavorites((err, results) => {
+        if (err) {return console.error(`there was an error retrieving all favorites from DB: ${err}`)}
+        console.log(`Success! Here are all the favorites: ${JSON.stringify(results)}`);
+        res.send(JSON.stringify(results));
+    });
+})
+
 app.post('/save', function(req, res) {
+    let movie = req.body.movie;
+
+    console.log(JSON.stringify(movie));
+
+    saveFavorite(movie, (err, results) => {
+        if (err) {return console.error(`Uh oh! There was an error setting ${movie} in the DB: ${err}`);}
+        console.log(`Success! You saved a new favorite movie: ${movie.title}`)
+        res.end('ROMA VICTA');
+    })
 
 })
 
@@ -68,5 +78,5 @@ app.post('/delete', function(req, res) {
 
 })
 app.listen(3000, function() {
-  console.log('listening on port 3000!');
+    console.log('listening on port 3000!');
 });

@@ -35,7 +35,8 @@ class Movies extends React.Component {
           <li  
             key={movie.id} 
             onClick={() => {
-              this.props.selectHandler(movie)
+              // this.props.selectHandler(movie)
+              this.props.saveHandler(movie);
             }} 
             value={movie.title} 
             className="movie_item"

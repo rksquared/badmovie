@@ -16,22 +16,20 @@ class App extends React.Component {
         title: `DE WAY`, 
         year: `2090`, 
         rating: `OVER 9000`,
-        desc: `WHOSVILLE`
       }],
       selectedMovies: [],
       showFaves: false
   	}
 
     this.getMovies = this.getMovies.bind(this)
-    // whats missing?
     this.swapFavorites = this.swapFavorites.bind(this)
     this.saveMovie = this.saveMovie.bind(this);
     this.deleteMovie = this.deleteMovie.bind(this);
     this.selectMovie = this.selectMovie.bind(this);
+    this.getFavorites = this.getFavorites.bind(this);
   }
 
   getMovies(genre) {
-    //make an axios request to your server on the GET SEARCH endpoint
     console.log(`genre being passed in getMovies: ${genre}`);
     Axios.get(`/search?${genre ? `genre=${genre}` : `genre=28`}`)
     .then(({data}) => {
@@ -41,7 +39,6 @@ class App extends React.Component {
         title: movie.title, 
         year: movie.release_date.slice(0, 4), 
         rating: movie.vote_average,
-        desc: movie.overview,
         thumbnail: movie.poster_path}), 
         movieList), 
         []);
@@ -54,8 +51,23 @@ class App extends React.Component {
     })
   }
 
-  saveMovie() {
+  getFavorites() {
+    Axios.get('/favorites')
+      .then(({data}) => {
+        console.log(`retrieved favorites from DB: ${data}`);
+        this.setState({
+          favorites: data
+        });
+      })
+  }
+
+  saveMovie(movie) {
     //same as above but do something diff
+    Axios.post(`/save`, {movie: movie})
+      .then((data) => {
+        console.log(`data recieved from save: ${data}`);
+        this.getFavorites();
+      })
   }
 
   deleteMovie() {
@@ -73,6 +85,9 @@ class App extends React.Component {
     console.log(`application mounted!`);
 
     this.getMovies();
+
+    // this.getFavorites();
+
   }
 
   selectMovie(movie) {
@@ -101,7 +116,9 @@ class App extends React.Component {
         />
         <Movies 
           selectedMovies={this.state.selectedMovies} 
-          selectHandler={this.selectMovie} movies={this.state.showFaves ? this.state.favorites : this.state.movies} 
+          selectHandler={this.selectMovie}
+          saveHandler={this.saveMovie} 
+          movies={this.state.showFaves ? this.state.favorites : this.state.movies} 
           showFaves={this.state.showFaves}
         />
       </div>
