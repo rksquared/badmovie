@@ -64,7 +64,7 @@ app.get(`/favorites`, function(req, res) {
 app.post('/save', function(req, res) {
     let movie = req.body.movie;
 
-    console.log(JSON.stringify(movie));
+    console.log('movie to be saved: ', movie.title);
 
     saveFavorite(movie, (err, results) => {
         if (err) {return console.error(`Uh oh! There was an error setting ${movie} in the DB: ${err}`);}
@@ -75,6 +75,16 @@ app.post('/save', function(req, res) {
 })
 
 app.post('/delete', function(req, res) {
+    let movieId = req.body.movie.id;
+    let movieTitle = req.body.movie.title;
+
+    console.log('movie to be delted: ', movieTitle);
+
+    deleteFavorites(movieId, (err, results) => {
+        if (err) {return console.error(`Uh oh! There was an error trying to delete ${movieTitle} from the DB: ${err}`);}
+        console.log(`Success! ${movieTitle} was deleted from DB`);
+        res.send(`ROMA VICTA`);
+    })
 
 })
 app.listen(3000, function() {

@@ -14,15 +14,17 @@ connection.connect(function(err) {
 const getAllFavorites = function(callback) {
   connection.query(`SELECT * FROM movies`, (err, results) => {
     callback(err, results);
-  })
+  });
 };
 const saveFavorite = function(movie, callback) {
   connection.query(`INSERT INTO movies SET ?`, movie, (err, results) => {
     callback(err, results);
-  })
+  });
 };
-const deleteFavorites = function(callback) {
-  //get favorites from the database
+const deleteFavorites = function(movie, callback) {
+  connection.query(`DELETE FROM movies WHERE id = ?`, movie, (err, results) => {
+    callback(err, results);
+  });
 };
 
 module.exports = {
